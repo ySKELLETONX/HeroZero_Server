@@ -23,6 +23,9 @@ servidor privado compatível com o cliente HTML5 oficial.
 - **Banco de dados**: MySQL 8.4 (Docker) com dados de seed.
 - **Cliente desktop**: o cliente Steam/NW.js dá boot contra o servidor via
   `steam.php` (o jogo em si vem do CDN oficial).
+- **Socket em tempo real**: reimplementação em Node.js do socket oficial
+  (Engine.IO v2 / Socket.IO v2) que empurra eventos `syncGame`/`syncGameAndGuild`
+  (ex.: chat de guilda) aos clientes conectados, com fallback gracioso p/ polling.
 
 ## Estrutura do repositório
 
@@ -32,6 +35,7 @@ HeroZero/
 │   ├── actions/        # Um handler por action do cliente (89 arquivos)
 │   └── data/           # Fixtures de resposta capturadas do jogo real
 ├── admin-laravel/      # Painel admin (Laravel, porta 8001)
+├── socket-server/      # Servidor de socket em tempo real (Node.js, Engine.IO v2)
 ├── docs/
 │   ├── PROTOCOL.md         # Protocolo HTTP decodificado (auth, login, actions)
 │   ├── RESPONSE_SCHEMA.md  # 185 campos raiz de resposta mapeados
@@ -58,6 +62,20 @@ php artisan serve --port=8000
 cd admin-laravel
 composer install
 php artisan serve --port=8001
+
+# Servidor de socket em tempo real (opcional; push instantâneo, senão o cliente faz polling)
+cd socket-server
+npm install
+node server.js   # escuta em 127.0.0.1:8090
+```
+
+Para ligar o socket ao servidor do jogo, defina estas variáveis de ambiente para o
+`server-laravel` (ver `socket-server/README.md`):
+
+```bash
+HZ_SOCKET_URL=http://127.0.0.1:8090            # enviado ao cliente como urlSocketServer
+HZ_SOCKET_PUSH_URL=http://127.0.0.1:8090/push  # usado por app/HeroZero/SocketPush.php
+HZ_SOCKET_TOKEN=local-dev-token                # deve bater com o socket server
 ```
 
 Depois abra **http://127.0.0.1:8000/** no navegador (mantenha a aba em primeiro
@@ -89,5 +107,9 @@ curl -X POST http://127.0.0.1:8000/request.php \
 - [x] Progressão de zona/story dungeon com curva de XP oficial
 - [x] Painel admin
 - [x] Boot do cliente desktop (Steam)
-- [ ] Protocolo do socket em tempo real (handshake mapeado, eventos de gameplay pendentes)
-- [ ] Campos de resposta ainda não validados (ver `docs/RESPONSE_SCHEMA.md`)
+- [x] Servidor de socket em tempo real (Engine.IO v2 / Socket.IO v2) com push `syncGame*`
+- [x] Campos de resposta endurecidos crash-safe (presente-mas-null → container vazio)
+- [ ] Validação completa dos campos ainda não validados contra capturas oficiais
+      (a shape já é crash-safe, mas não verificada contra dado real)
+- [ ] Push de socket ligado em todas as actions que mutam estado (chat de guilda pronto;
+      duelos, ligas, ataques de hideout pendentes)

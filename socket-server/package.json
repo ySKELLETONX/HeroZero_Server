@@ -1,0 +1,17 @@
+{
+  "name": "socket-server",
+  "version": "1.0.0",
+  "description": "Hero Zero real-time socket server (Engine.IO v2 / Socket.IO v2)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test-client.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ws": "^8.21.1"
+  }
+}

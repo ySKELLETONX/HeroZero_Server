@@ -288,12 +288,24 @@ Engine.IO v2 / Socket.IO v2 clássico, sobre `wss://sa1a-sock1.herozerogame.com/
      (chat de guilda, notificações) para esse socket específico.
    - keepalive: cliente `2` (ping) → servidor `3` (pong), a cada `pingInterval` (25s).
 
-**Decisão de design (já validada, ver `[[guild-chat-protocol]]`):** o cliente HTML5 tem fallback
-gracioso quando o socket não conecta (`socketConnectionAllowed`/`useFallback` no bundle) — nosso
-servidor **não implementa** esse socket real; em vez disso conta com o polling client-side de
-`getGuildLog`/`sync_states` (`syncGame`/`updateGameSession`), que é o mesmo caminho que o cliente
-oficial usa quando o socket está indisponível. Implementar o socket de verdade só valeria a pena
-se quiséssemos push imediato (latência menor) — não é bloqueador funcional.
+**Tipos de `message` que o cliente trata** (switch no bundle, logo após responder
+`requestClientInfoResponse`) — o socket só carrega uma "poke", o cliente re-sincroniza via HTTP:
+
+- `syncGame` → `set_pendingSyncGame(true)` + `onSynGame()` (re-fetch de estado no próximo poll)
+- `syncGameAndGuild` → sync de jogo **e** `getGuildLog` (chat/log da guilda chega aos membros)
+- `syncFriendBar` → atualiza a friend bar
+
+**Implementação (`socket-server/`):** reimplementamos esse socket em Node.js (Engine.IO v2 /
+Socket.IO v2) — handshake polling → upgrade WS → `requestClientInfo`/`clientRegistered` → registro
+`user_id → socket`, com um endpoint interno `POST /push` que o Laravel chama (`app/HeroZero/SocketPush.php`)
+para empurrar `syncGame`/`syncGameAndGuild`/`syncFriendBar` a um user. O `sendGuildChatMessage` já
+dispara `syncGameAndGuild` aos outros membros da guilda (sussurro → só o destinatário). O cliente
+recebe a URL via `clientVars.urlSocketServer` (env `HZ_SOCKET_URL`).
+
+**Fallback preservado (ver `[[guild-chat-protocol]]`):** se o socket estiver desligado (ou
+`urlSocketServer` vazio), o cliente cai no polling client-side de `getGuildLog`/`sync_states`
+(`syncGame`/`updateGameSession`) — o mesmo caminho que o cliente oficial usa quando o socket está
+indisponível. Push é uma melhoria de latência, não bloqueador funcional.
 
 ## Schema de resposta — campos de nível raiz
 
@@ -311,6 +323,7 @@ nunca terem sido testadas contra o shape real (ex.: `private_conversation*`, `le
 
 1. [ ] Mapear todas as `action` names (login, fight, mission, shop, ...) e seus params
 2. [x] Mapear protocolo do **SocketTransportLayer** (handshake + eventos) — ver seção acima
+   e **implementado** em `socket-server/` (push real-time de `syncGame*`)
 3. [x] Capturar tráfego real de uma sessão de convidado p/ validar formato — `reverse/br31.herozerogame.com.har`
 4. [x] Mapear estrutura dos data-objects (`DO*`) de nível raiz — `docs/RESPONSE_SCHEMA.md` (89/185 validados)
 5. [ ] Validar os 96 campos "nunca vistos" de `RESPONSE_SCHEMA.md` contra dado real (capturar sessões

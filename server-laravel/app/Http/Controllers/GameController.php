@@ -87,7 +87,7 @@ class GameController extends Controller
             'applicationTitle'     => 'Hero Zero (local/desktop)',
             'urlPublic'            => $origin . '/',
             'urlRequestServer'     => $origin . '/request.php',
-            'urlSocketServer'      => '',
+            'urlSocketServer'      => (string)(getenv('HZ_SOCKET_URL') ?: ''),
             'urlCDN'               => $appCDNUrl,
             'userId'               => $uid,
             'userSessionId'        => $sid,

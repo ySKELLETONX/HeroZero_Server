@@ -6,6 +6,7 @@ use HeroZero\Db;
 use HeroZero\GameError;
 use HeroZero\GuildChat;
 use HeroZero\Live;
+use HeroZero\SocketPush;
 
 return function (array $params): array {
     $userId = (int)($params['user_id'] ?? $params['existing_user_id'] ?? 0);
@@ -53,6 +54,18 @@ return function (array $params): array {
         [$guildId, $char->id(), $char->name(), $toId, $isOfficer ? 1 : 0, $toId > 0 ? 1 : 0, $message, time()]
     );
     $messageId = (int)Db::pdo()->lastInsertId();
+
+    // Push em tempo real aos outros membros: sussurro vai so ao destinatario;
+    // mensagem publica/officer vai a todos os membros (menos o autor). Se o
+    // socket estiver desligado isto vira no-op e o cliente sincroniza no proximo
+    // poll (fallback documentado em docs/PROTOCOL.md).
+    $recipientClause = $toId > 0 ? 'AND id = ?' : 'AND id <> ?';
+    $recipientArg = $toId > 0 ? $toId : $char->id();
+    $memberUserIds = Db::column(
+        "SELECT user_id FROM `character` WHERE guild_id = ? AND user_id > 0 $recipientClause",
+        [$guildId, $recipientArg]
+    );
+    SocketPush::toUsers($memberUserIds, 'syncGameAndGuild');
 
     $data = Live::accountState($userId);
     $data['guild_chat_message'] = GuildChat::entry([

@@ -54,6 +54,14 @@ final class Db
         return $v === false ? null : $v;
     }
 
+    /** Vetor plano com a primeira coluna de cada linha. */
+    public static function column(string $sql, array $params = []): array
+    {
+        $st = self::pdo()->prepare($sql);
+        $st->execute($params);
+        return $st->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
+
     public static function exec(string $sql, array $params = []): int
     {
         $st = self::pdo()->prepare($sql);

@@ -12,6 +12,26 @@ raiz de `data` de QUALQUER resposta do `request.php` (o wrapper `ta` e reusado p
   risco de feature so coberta por `stateEcho.php` (passthrough generico) no nosso Router,
   nunca validada contra dado real oficial.
 
+## Hardening contra o crash null -> `.iterator()`
+
+Os 96 campos "nunca vistos" caem no `stateEcho.php` (passthrough) e por isso podem
+sair com shape incorreta. O risco concreto e o padrao documentado em
+`memory/guild-response-key-null-iterator-pattern`: o cliente le o campo por nome
+exato e, se vier **presente com `null`** em vez de colecao/mapa vazio, quebra em
+`.iterator()`.
+
+`app/HeroZero/ResponseSchema.php` (gerado desta tabela por
+`tools/gen_response_schema.php`) roda em `Response::ok()` — choke point de TODA
+action — e coage qualquer campo presente-mas-`null` ao container vazio correto:
+`[]` para as 59 colecoes (ArrayOfDO/StringVector/Array) e `{}` para os 24 mapas
+(TypedObject). Nao injeta campos ausentes (presenca = feature ativa) nem altera
+valores ja preenchidos. Assim, mesmo os campos ainda nao validados contra captura
+real ficam **crash-safe**: o pior caso vira "feature vazia", nao um travamento.
+
+Validar de fato (coluna `validado`) ainda exige capturar sessoes oficiais que
+toquem cada feature; o hardening apenas garante que a ausencia de validacao nao
+derruba o cliente.
+
 | campo | tipo | classe DO | validado |
 |---|---|---|---|
 | `abo_bonus_claimed` | Boolean |  | [x] |
