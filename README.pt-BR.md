@@ -8,6 +8,8 @@ servidor privado compatível com o cliente HTML5 oficial.
 > ⚠️ Fins educacionais / servidor privado. O cliente e todos os assets do jogo são
 > propriedade da Playata GmbH. Não redistribua assets originais.
 
+![Hero Zero rodando no servidor local](docs/GAME.png)
+
 ## Visão geral
 
 - **Servidor do jogo**: Laravel (PHP 8.3) implementando o protocolo HTTP oficial —

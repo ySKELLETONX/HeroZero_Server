@@ -8,6 +8,8 @@ private server compatible with the official HTML5 client.
 > ⚠️ For educational / private-server purposes only. The client and all game assets
 > are property of Playata GmbH. Do not redistribute original assets.
 
+![Hero Zero running on the local server](docs/GAME.png)
+
 ## Overview
 
 - **Game server**: Laravel (PHP 8.3) implementing the official HTTP protocol —
