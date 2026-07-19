@@ -1,88 +1,89 @@
-# Hero Zero — Servidor Emulado (Engenharia Reversa)
+# Hero Zero — Emulated Server (Reverse Engineering)
 
-Projeto de engenharia reversa do jogo **Hero Zero** (Playata GmbH) para criar um
-servidor privado compatível com o cliente oficial.
+**English** | [Português (BR)](README.pt-BR.md)
 
-> ⚠️ Fins educacionais / servidor privado. O cliente e assets são propriedade da
-> Playata GmbH. Não distribua assets originais.
+A reverse-engineering project of the game **Hero Zero** (Playata GmbH), building a
+private server compatible with the official HTML5 client.
 
-## Estrutura
+> ⚠️ For educational / private-server purposes only. The client and all game assets
+> are property of Playata GmbH. Do not redistribute original assets.
+
+## Overview
+
+- **Game server**: Laravel (PHP 8.3) implementing the official HTTP protocol —
+  `POST /request.php` with form-urlencoded actions, JSON `{ data, error }` envelope
+  and `auth = md5(action + salt + user_id)` signature.
+- **Actions**: ~89 client actions implemented (login, quests, duels, training,
+  guilds and guild chat, events, casino, hideout, shop, boosters, leagues...).
+- **Admin panel**: separate Laravel app for accounts, inventory, missions, events,
+  guilds and broadcast messages.
+- **Database**: MySQL 8.4 (Docker) with seed data.
+- **Desktop client**: the Steam/NW.js client boots against the server via
+  `steam.php` (the game itself is served from the official CDN).
+
+## Repository layout
 
 ```
 HeroZero/
+├── server-laravel/     # Game server (Laravel, port 8000)
+│   ├── actions/        # One handler per client action (89 files)
+│   └── data/           # Response fixtures captured from the real game
+├── admin-laravel/      # Admin panel (Laravel, port 8001)
 ├── docs/
-│   └── PROTOCOL.md        # Protocolo decodificado (HTTP, auth, login, actions)
-├── tools/
-│   ├── HeroZero.min.js    # Cliente oficial baixado (build 252) — p/ análise
-│   ├── allclasses.txt     # 2858 classes com.playata.* extraídas
-│   └── info.txt           # Página de embarque original (clientVars, URLs)
-└── server/                # Servidor emulado em PHP
-    ├── request.php        # Entrada (equivalente ao request.php original)
-    ├── lib/
-    │   ├── Protocol.php    # Salt, build number, verificação de auth
-    │   ├── Response.php    # Envelope { data, error }
-    │   └── Router.php      # Roteia action -> handler
-    └── actions/
-        ├── initEnvironment.php
-        ├── autoLoginUser.php
-        ├── loginUser.php
-        └── initGame.php
+│   ├── PROTOCOL.md         # Decoded HTTP protocol (auth, login, actions)
+│   ├── RESPONSE_SCHEMA.md  # 185 root response fields mapped
+│   ├── SERVER_DESIGN.md    # Server architecture
+│   ├── DESKTOP_CLIENT.md   # Steam/NW.js client boot
+│   └── PRODUCTION_AUDIT.md # Coverage, tests, release blockers
+└── tools/              # RE scripts (HAR extraction, fixture generation)
 ```
 
-## Estado atual
+## Running
 
-See `docs/PRODUCTION_AUDIT.md` for the current HAR coverage, production controls,
-test results and remaining release blockers.
-
-- [x] Cliente obtido e analisado (Haxe/OpenFL, nomes de classe preservados)
-- [x] Protocolo HTTP decodificado (POST form-urlencoded, envelope JSON)
-- [x] Assinatura `auth = md5(action + "GN1al351" + user_id)` descoberta
-- [x] Fluxo de boot/login mapeado (initEnvironment → login → initGame)
-- [x] Esqueleto do servidor PHP (roteador + auth + envelope)
-- [x] Servidor rodando e testado (PHP 8.0 do XAMPP, todas as actions respondem)
-- [x] Envelope de `loginUser`/`autoLoginUser` decodificado (`{ user, user_geo_location }`)
-- [x] `DOUser` (10 campos) e `DOCharacter` (103 campos) mapeados — ver `docs/DOCharacter.fields.txt`
-- [ ] `initGame` completo (constants, missions, inventory, world, guild...) — **RE em andamento**
-- [ ] Estrutura de `extendedConfig`/`textures` do `initEnvironment`
-- [ ] Protocolo do socket (tempo real)
-- [ ] Persistência (banco de dados)
-
-## Como rodar (PHP do XAMPP em `I:\Xampp\php`)
-
-O servidor serve **a página de embarque local + o cliente + a API** na mesma origem
-(sem CORS). Suba com o router:
-
-```powershell
-cd I:\SKELLETONX\HeroZero\server
-I:\Xampp\php\php.exe -S 127.0.0.1:8000 -t public router.php
-```
-
-Depois abra **http://127.0.0.1:8000/** no navegador (Chrome/Edge), em uma aba em
-**primeiro plano** (o preloader do cliente usa `requestAnimationFrame`, que o
-navegador congela em abas de background).
-
-- Página de embarque local: `server/public/index.html` (aponta `urlRequestServer`
-  para `/request.php`; assets de arte vêm do CDN oficial da Akamai).
-- Cliente + libs: `server/public/js/` (cópia local do build 252).
-- API: `POST /request.php` → roteada pelo `router.php` para `server/request.php`.
-
-Testar a API direto (sem cliente):
+Requirements: PHP 8.3+, Composer, Docker (MySQL 8.4).
 
 ```bash
-# auth = md5(action + "GN1al351" + user_id)
+# Database (MySQL 8.4 on port 3308, database "herozero")
+docker start herozero-db   # or create your own container and run the seed
+
+# Game server
+cd server-laravel
+composer install
+php artisan serve --port=8000
+
+# Admin panel
+cd admin-laravel
+composer install
+php artisan serve --port=8001
+```
+
+Then open **http://127.0.0.1:8000/** in the browser (keep the tab focused — the
+client preloader uses `requestAnimationFrame`, which browsers throttle in
+background tabs).
+
+Test the API directly:
+
+```bash
 curl -X POST http://127.0.0.1:8000/request.php \
   -d "action=initEnvironment&user_id=0&auth=$(php -r 'echo md5("initEnvironmentGN1al3510");')"
 ```
 
-### Estado do boot do cliente
-O cliente **embarca e carrega todos os assets** (splash do Hero Zero aparece). O
-preloader ainda **empaca em ~60%** antes de chamar `initEnvironment` — sob
-investigação (provável estado de boot que depende de um valor de `clientVars` ou de
-compositing WebGL real). A API já responde corretamente ao fluxo esperado.
+## Reverse-engineering notes
 
-## Próximos passos
+- Client is Haxe/OpenFL with class names preserved (~2,858 `com.playata.*` classes).
+- Boot flow: `initEnvironment → loginUser/autoLoginUser → initGame`.
+- Official game constants extracted from the CDN (`constants_json.data`, zlib),
+  including the official XP curve.
+- Real session traffic captured via HAR, including the socket.io handshake.
+- Response schema: 185 root fields mapped in `docs/RESPONSE_SCHEMA.md`
+  (89 validated against captures).
 
-1. Capturar tráfego real de uma sessão (validar formato exato das respostas).
-2. Preencher `extendedConfig`/`textures` do `initEnvironment`.
-3. Mapear a estrutura de `data` do `loginUser`/`initGame` (data-objects DO*).
-4. Decodificar o protocolo do socket.
+## Status
+
+- [x] HTTP protocol fully decoded and implemented
+- [x] Login, character, quests, training, duels, guilds (+ chat), events, casino, shop
+- [x] Zone/story-dungeon progression with official XP curve
+- [x] Admin panel
+- [x] Desktop (Steam) client boot
+- [ ] Real-time socket protocol (handshake mapped, gameplay events pending)
+- [ ] Remaining unvalidated response fields (see `docs/RESPONSE_SCHEMA.md`)
