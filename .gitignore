@@ -1,0 +1,11 @@
+.claude/
+
+# Binarios de terceiros (runtimes/ferramentas)
+tools/php83/
+tools/ILSpy/
+tools/ffdec/
+tools/__pycache__/
+
+# Capturas HAR/logs (podem conter cookies/tokens de sessao)
+tools/capture/
+tools/reverse/

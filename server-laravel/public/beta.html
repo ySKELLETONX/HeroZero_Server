@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero Zero — Beta</title>
+<style>
+  :root { --bg:#0f1420; --card:#1a2233; --line:#2b3550; --txt:#e7ecf5; --muted:#8ea0c0;
+          --accent:#ffb020; --accent2:#3a86ff; --ok:#38c172; --err:#ff5a5a; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; font-family:system-ui,Segoe UI,Roboto,sans-serif;
+         background:radial-gradient(1200px 600px at 50% -10%,#1c2740,#0f1420); color:var(--txt);
+         display:flex; align-items:center; justify-content:center; padding:24px; }
+  .wrap { width:100%; max-width:420px; }
+  .logo { text-align:center; margin-bottom:18px; }
+  .logo b { font-size:26px; letter-spacing:.5px; }
+  .logo b span { color:var(--accent); }
+  .logo .beta { display:inline-block; margin-left:8px; font-size:11px; font-weight:700;
+                background:var(--accent2); color:#fff; padding:2px 8px; border-radius:20px; vertical-align:middle; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px;
+          box-shadow:0 12px 40px rgba(0,0,0,.4); }
+  .tabs { display:flex; gap:6px; margin-bottom:18px; }
+  .tabs button { flex:1; padding:10px; border:0; border-radius:9px; cursor:pointer; font-weight:600;
+                 background:transparent; color:var(--muted); }
+  .tabs button.on { background:#243050; color:var(--txt); }
+  label { display:block; font-size:13px; color:var(--muted); margin:12px 0 5px; }
+  input { width:100%; padding:11px 12px; border-radius:9px; border:1px solid var(--line);
+          background:#0f1626; color:var(--txt); font-size:15px; }
+  input:focus { outline:none; border-color:var(--accent2); }
+  .go { width:100%; margin-top:18px; padding:12px; border:0; border-radius:9px; cursor:pointer;
+        font-size:15px; font-weight:700; color:#101010; background:linear-gradient(180deg,#ffc24d,#ffb020); }
+  .go:active { transform:translateY(1px); }
+  .msg { margin-top:14px; padding:11px 12px; border-radius:9px; font-size:14px; display:none; }
+  .msg.ok  { display:block; background:rgba(56,193,114,.12); border:1px solid var(--ok); color:#9ff0c0; }
+  .msg.err { display:block; background:rgba(255,90,90,.12); border:1px solid var(--err); color:#ffb3b3; }
+  .msg pre { margin:8px 0 0; font-size:12px; color:var(--muted); white-space:pre-wrap; }
+  .hint { text-align:center; color:var(--muted); font-size:12px; margin-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo"><b>HERO<span>ZERO</span></b><span class="beta">BETA</span></div>
+  <div class="card">
+    <div class="tabs">
+      <button id="tabLogin" class="on" onclick="setTab('login')">Entrar</button>
+      <button id="tabReg" onclick="setTab('register')">Criar conta</button>
+    </div>
+
+    <div id="fName" style="display:none">
+      <label>Nome do herói</label>
+      <input id="name" placeholder="Ex: SkelletonX" maxlength="20">
+    </div>
+    <label>E-mail</label>
+    <input id="email" type="email" placeholder="voce@email.com" autocomplete="username">
+    <label>Senha</label>
+    <input id="password" type="password" placeholder="••••••" autocomplete="current-password">
+
+    <button class="go" id="submit" onclick="submit()">Entrar</button>
+    <div class="msg" id="msg"></div>
+  </div>
+  <div class="hint">Servidor local · banco herozero (Docker)</div>
+</div>
+
+<script>
+let mode = 'login';
+function setTab(m){
+  mode = m;
+  document.getElementById('tabLogin').classList.toggle('on', m==='login');
+  document.getElementById('tabReg').classList.toggle('on', m==='register');
+  document.getElementById('fName').style.display = m==='register' ? 'block' : 'none';
+  document.getElementById('submit').textContent = m==='register' ? 'Criar conta' : 'Entrar';
+  hide();
+}
+function hide(){ const el=document.getElementById('msg'); el.className='msg'; el.innerHTML=''; }
+function show(ok,html){ const el=document.getElementById('msg'); el.className='msg '+(ok?'ok':'err'); el.innerHTML=html; }
+
+async function submit(){
+  hide();
+  const body = {
+    action: mode,
+    email: document.getElementById('email').value.trim(),
+    password: document.getElementById('password').value,
+    name: document.getElementById('name').value.trim(),
+  };
+  try {
+    const r = await fetch('/beta-api', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const j = await r.json();
+    if (j.ok) {
+      // guarda a identidade e entra no jogo COMO esta conta.
+      const id = { user_id: j.user_id, session_id: j.session_id, name: j.name };
+      try { localStorage.setItem('hz_session', JSON.stringify(id)); } catch(e){}
+      show(true,
+        (mode==='register' ? '✅ Conta criada!' : '✅ Login OK!') +
+        ` Entrando como <b>${j.name}</b>…` +
+        `<pre>user_id: ${j.user_id} · character_id: ${j.character_id}</pre>`);
+      const q = new URLSearchParams({ uid: j.user_id, sid: j.session_id, name: j.name });
+      setTimeout(() => { location.href = '/?' + q.toString(); }, 700);
+    } else {
+      show(false, '⚠️ ' + (j.error || 'Falha.'));
+    }
+  } catch(e){ show(false, 'Erro de conexão: ' + e.message); }
+}
+document.getElementById('password').addEventListener('keydown', e => { if(e.key==='Enter') submit(); });
+</script>
+</body>
+</html>

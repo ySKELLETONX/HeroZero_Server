@@ -1,0 +1,3 @@
+lendo br27.herozerogame.com.har ...
+4376 entradas no HAR
+extraidos 629 pares request.php -> I:\SKELLETONX\HeroZero\tools/capture

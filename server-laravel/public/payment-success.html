@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="utf-8">
+	<title>Pagamento local</title>
+</head>
+<body>
+	<script>
+		try {
+			if (parent && typeof parent.closePaymentWindow === "function") {
+				parent.closePaymentWindow(true);
+			}
+		} catch (e) {}
+	</script>
+	Pagamento local confirmado.
+</body>
+</html>

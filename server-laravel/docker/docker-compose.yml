@@ -1,0 +1,27 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: herozero-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: herozero
+      MYSQL_DATABASE: herozero
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --sql-mode=NO_ENGINE_SUBSTITUTION
+    ports:
+      # 3306 = XAMPP, 3307 = serverlegend; usamos 3308 p/ nao conflitar.
+      - "3308:3306"
+    volumes:
+      - herozero_data:/var/lib/mysql
+      # scripts *.sql rodam em ordem na primeira inicializacao do volume
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  herozero_data:

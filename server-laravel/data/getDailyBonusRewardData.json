@@ -1,0 +1,158 @@
+{
+    "user": {
+        "id": 25328,
+        "premium_currency": 8,
+        "blocked_premium_currency": 0
+    },
+    "character": {
+        "id": 25294,
+        "stat_total_stamina": 25,
+        "stat_total_strength": 10,
+        "stat_total_critical_rating": 10,
+        "stat_total_dodge_rating": 12,
+        "active_quest_booster_id": "booster_quest2",
+        "active_stats_booster_id": "",
+        "active_work_booster_id": "",
+        "ts_active_sense_boost_expires": 0,
+        "active_league_booster_id": "",
+        "ts_active_league_boost_expires": 0,
+        "ts_active_multitasking_boost_expires": 0,
+        "ts_active_training_sense_boost_expires": 0,
+        "active_hideout_booster_id": "",
+        "ts_active_hideout_boost_expires": 0,
+        "quest_energy": 99,
+        "max_quest_energy": 100,
+        "duel_stamina": 60,
+        "max_duel_stamina": 100,
+        "ts_last_duel_stamina_change": 1783828146,
+        "duel_stamina_cost": 20,
+        "training_energy": 30,
+        "max_training_energy": 30,
+        "ts_last_training_energy_change": 0,
+        "training_count": 10,
+        "max_training_count": 10,
+        "active_worldboss_attack_id": 0,
+        "active_dungeon_quest_id": 0,
+        "guild_id": 0,
+        "guild_rank": 0,
+        "finished_guild_battle_attack_id": 0,
+        "finished_guild_battle_defense_id": 0,
+        "finished_guild_dungeon_battle_id": 0,
+        "guild_donated_game_currency": 0,
+        "guild_donated_premium_currency": 0,
+        "guild_competition_points_gathered": 0,
+        "pending_guild_competition_tournament_rewards": 0,
+        "pending_solo_guild_competition_tournament_rewards": 0,
+        "worldboss_event_id": 0,
+        "worldboss_event_attack_count": 0,
+        "pending_tournament_rewards": 0,
+        "pending_global_tournament_rewards": 0,
+        "ts_last_shop_refresh": 0,
+        "event_quest_id": 0,
+        "hidden_object_event_quest_id": 0,
+        "draw_event_id": 0,
+        "treasure_event_id": 0,
+        "legendary_dungeon_id": 0,
+        "league_group_id": 0,
+        "active_league_fight_id": 0,
+        "league_fight_count": 0,
+        "league_opponents": "",
+        "ts_last_league_opponents_refresh": 0,
+        "league_stamina": 20,
+        "max_league_stamina": 20,
+        "ts_last_league_stamina_change": 1783828303,
+        "league_stamina_cost": 20,
+        "pending_league_tournament_rewards": 0,
+        "slotmachine_spin_count": 0,
+        "new_user_voucher_ids": "[]"
+    },
+    "daily_bonus_lookup": {
+        "id": 24937,
+        "character_id": 25294,
+        "ts_last_reset": 1783828146,
+        "herobook_daily_completed": 0,
+        "duel_battle_won": 2,
+        "league_battle_won": 0,
+        "hideout_battle_won": 0,
+        "quest_energy_spent": 1
+    },
+    "daily_bonus_reward_data": {
+        "1": {
+            "3": {
+                "reward_type": 9,
+                "reward_value": 10,
+                "reward_identifier": ""
+            }
+        },
+        "2": {
+            "10": {
+                "reward_type": 3,
+                "reward_value": 8,
+                "reward_identifier": "random_epic_belt"
+            },
+            "20": {
+                "reward_type": 5,
+                "reward_value": 4,
+                "reward_identifier": ""
+            },
+            "50": {
+                "reward_type": 4,
+                "reward_value": 15,
+                "reward_identifier": ""
+            }
+        },
+        "3": {
+            "5": {
+                "reward_type": 5,
+                "reward_value": 2,
+                "reward_identifier": ""
+            },
+            "10": {
+                "reward_type": 9,
+                "reward_value": 7,
+                "reward_identifier": ""
+            },
+            "20": {
+                "reward_type": 3,
+                "reward_value": 10,
+                "reward_identifier": "random_epic_mask"
+            }
+        },
+        "4": {
+            "5": {
+                "reward_type": 9,
+                "reward_value": 5,
+                "reward_identifier": ""
+            },
+            "10": {
+                "reward_type": 3,
+                "reward_value": 9,
+                "reward_identifier": "random_epic_belt"
+            },
+            "20": {
+                "reward_type": 5,
+                "reward_value": 6,
+                "reward_identifier": ""
+            }
+        },
+        "5": {
+            "100": {
+                "reward_type": 9,
+                "reward_value": 5,
+                "reward_identifier": ""
+            },
+            "200": {
+                "reward_type": 5,
+                "reward_value": 4,
+                "reward_identifier": ""
+            },
+            "300": {
+                "reward_type": 4,
+                "reward_value": 15,
+                "reward_identifier": ""
+            }
+        }
+    },
+    "time_correction": 0,
+    "server_time": 1783828303
+}
