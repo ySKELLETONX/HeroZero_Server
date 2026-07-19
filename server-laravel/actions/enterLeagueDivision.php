@@ -26,7 +26,7 @@ return function (array $params): array {
     $row = Db::row('SELECT league_group_id, honor FROM `character` WHERE id = ?', [$char->id()]) ?? [];
     if ((int)($row['league_group_id'] ?? 0) === 0) {
         if ((int)($row['honor'] ?? 0) < 500) {
-            throw new GameError('errRemoveGameCurrencyNotEnough');
+            throw new GameError('errEnterLeagueDivisionMinHonorNotReached');
         }
         Db::exec('UPDATE `character` SET league_group_id = 100000, league_points = IF(league_points = 0, 100, league_points) WHERE id = ?', [$char->id()]);
     }
