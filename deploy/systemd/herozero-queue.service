@@ -1,0 +1,23 @@
+# Hero Zero — worker de fila do Laravel (jobs em background).
+# /etc/systemd/system/herozero-queue.service
+[Unit]
+Description=Hero Zero Laravel queue worker
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=herozero
+Group=herozero
+WorkingDirectory=/var/www/herozero/server-laravel
+EnvironmentFile=-/etc/herozero/laravel.env
+ExecStart=/usr/bin/php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/www/herozero/server-laravel/storage
+
+[Install]
+WantedBy=multi-user.target

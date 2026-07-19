@@ -1,0 +1,12 @@
+# Hero Zero — roda o healthcheck a cada 2 minutos.
+# /etc/systemd/system/herozero-healthcheck.timer
+#   systemctl daemon-reload && systemctl enable --now herozero-healthcheck.timer
+[Unit]
+Description=Hero Zero healthcheck every 2 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+
+[Install]
+WantedBy=timers.target

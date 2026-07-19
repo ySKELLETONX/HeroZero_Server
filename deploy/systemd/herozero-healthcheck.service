@@ -1,0 +1,12 @@
+# Hero Zero — healthcheck (disparado pelo .timer).
+# /etc/systemd/system/herozero-healthcheck.service
+[Unit]
+Description=Hero Zero healthcheck (web + socket + db)
+After=network.target
+
+[Service]
+Type=oneshot
+User=herozero
+Group=herozero
+EnvironmentFile=-/etc/herozero/monitoring.env
+ExecStart=/usr/local/bin/hz-healthcheck.sh

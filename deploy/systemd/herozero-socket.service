@@ -1,0 +1,30 @@
+# Hero Zero — servidor de socket (Node.js) como servico systemd.
+# Instale em /etc/systemd/system/herozero-socket.service e:
+#   systemctl daemon-reload && systemctl enable --now herozero-socket
+[Unit]
+Description=Hero Zero real-time socket server (Engine.IO v2)
+After=network.target
+
+[Service]
+Type=simple
+User=herozero
+Group=herozero
+WorkingDirectory=/var/www/herozero/socket-server
+# Escuta so no loopback; o Nginx faz o proxy TLS publico.
+Environment=HZ_SOCKET_HOST=127.0.0.1
+Environment=HZ_SOCKET_PORT=8090
+# Segredo do endpoint /push — DEVE bater com HZ_SOCKET_TOKEN do Laravel.
+# Prefira EnvironmentFile p/ nao versionar segredo:
+EnvironmentFile=-/etc/herozero/socket.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=3
+# Hardening.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/log/herozero
+
+[Install]
+WantedBy=multi-user.target

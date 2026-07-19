@@ -5,13 +5,15 @@ use App\Http\Controllers\GameController;
 use Illuminate\Support\Facades\Route;
 
 // API do jogo (o cliente html5_257 POSTa exatamente em /request.php).
-Route::match(['post', 'options'], '/request.php', [GameController::class, 'request']);
+Route::match(['post', 'options'], '/request.php', [GameController::class, 'request'])
+    ->middleware('throttle:game');
 
 // Boot do cliente desktop (Steam/NW.js).
 Route::get('/steam.php', [GameController::class, 'steam']);
 
 // API beta de conta (registrar/login fora do protocolo do jogo).
-Route::post('/beta-api', [BetaApiController::class, 'handle']);
+Route::post('/beta-api', [BetaApiController::class, 'handle'])
+    ->middleware('throttle:auth');
 
 // Logs do cliente (dev).
 Route::post('/clientlog', [GameController::class, 'clientlog']);

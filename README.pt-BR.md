@@ -36,6 +36,7 @@ HeroZero/
 │   └── data/           # Fixtures de resposta capturadas do jogo real
 ├── admin-laravel/      # Painel admin (Laravel, porta 8001)
 ├── socket-server/      # Servidor de socket em tempo real (Node.js, Engine.IO v2)
+├── deploy/             # Stack de produção: Nginx/TLS, PHP-FPM, systemd, backups, monitoramento
 ├── docs/
 │   ├── PROTOCOL.md         # Protocolo HTTP decodificado (auth, login, actions)
 │   ├── RESPONSE_SCHEMA.md  # 185 campos raiz de resposta mapeados
@@ -113,3 +114,12 @@ curl -X POST http://127.0.0.1:8000/request.php \
       (a shape já é crash-safe, mas não verificada contra dado real)
 - [ ] Push de socket ligado em todas as actions que mutam estado (chat de guilda pronto;
       duelos, ligas, ataques de hideout pendentes)
+- [x] Stack de deploy em produção (Nginx/TLS, PHP-FPM, rate limiting, backups,
+      monitoramento) — ver `deploy/`
+
+## Produção
+
+Para um deploy de produção endurecido (Nginx + TLS + rate limiting + PHP-FPM +
+serviços systemd + backups do MySQL + monitoramento por healthcheck) veja
+[`deploy/README.md`](deploy/README.md). Obs.: um provedor de pagamento real e os
+direitos de assets/marca ainda são necessários antes de um lançamento público pago.

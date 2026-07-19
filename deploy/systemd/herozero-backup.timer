@@ -1,0 +1,13 @@
+# Hero Zero — agenda o backup diario (03:30, com jitter).
+# /etc/systemd/system/herozero-backup.timer
+#   systemctl daemon-reload && systemctl enable --now herozero-backup.timer
+[Unit]
+Description=Hero Zero daily MySQL backup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+RandomizedDelaySec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

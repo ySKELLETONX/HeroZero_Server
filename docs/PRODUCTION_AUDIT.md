@@ -53,8 +53,14 @@ disabled in production until that integration exists.
 This repository is not yet suitable for a public, paid production launch because:
 
 1. A real payment provider/webhook is not implemented.
-2. The PHP built-in server is development-only. Production needs a supported web
-   server, TLS termination, rate limiting, backups and monitoring.
+2. ~~The PHP built-in server is development-only.~~ **Resolved** — `deploy/`
+   provides a production stack: Nginx (reverse proxy + TLS via certbot + per-IP
+   `limit_req` rate limiting + WebSocket proxy), a dedicated PHP-FPM pool, systemd
+   units for the socket server and queue worker, a daily `mysqldump` backup with
+   rotation, and an active healthcheck (web+socket+db) with webhook alerting.
+   App-layer rate limiting (`throttle:game`/`throttle:auth`) adds defense-in-depth.
+   See `deploy/README.md`.
 3. Original game assets and trademarks require the appropriate distribution rights.
 
-A private test deployment with payments disabled can use production mode now.
+A private test deployment with payments disabled can use production mode now, and
+the infrastructure blocker (#2) is closed. Blockers #1 and #3 remain.

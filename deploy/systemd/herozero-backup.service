@@ -1,0 +1,12 @@
+# Hero Zero — job de backup do MySQL (disparado pelo .timer).
+# /etc/systemd/system/herozero-backup.service
+[Unit]
+Description=Hero Zero MySQL backup
+After=network.target mysql.service
+
+[Service]
+Type=oneshot
+User=herozero
+Group=herozero
+EnvironmentFile=/etc/herozero/backup.env
+ExecStart=/usr/local/bin/hz-backup.sh
